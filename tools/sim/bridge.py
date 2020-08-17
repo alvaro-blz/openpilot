@@ -18,6 +18,9 @@ parser = argparse.ArgumentParser(description='Bridge between CARLA and openpilot
 parser.add_argument('--autopilot', action='store_true')
 parser.add_argument('--joystick', action='store_true')
 parser.add_argument('--realmonitoring', action='store_true')
+parser.add_argument('--long_test', action='store_true')
+#parser.add_argument('--control_long_disabled', action='store_true')
+#parser.add_argument('--control_lat_disabled', action='store_true')
 args = parser.parse_args()
 
 pm = messaging.PubMaster(['frame', 'sensorEvents', 'can'])
@@ -88,7 +91,7 @@ def go(q):
   world.apply_settings(settings)
 
   weather = carla.WeatherParameters(
-      cloudyness=0.1,
+      cloudiness=0.1,
       precipitation=0.0,
       precipitation_deposits=0.0,
       wind_intensity=0.0,
@@ -102,8 +105,8 @@ def go(q):
   # exit(0)
 
   world_map = world.get_map()
-  vehicle_bp = random.choice(blueprint_library.filter('vehicle.tesla.*'))
-  vehicle = world.spawn_actor(vehicle_bp, world_map.get_spawn_points()[16])
+  vehicle_bp = random.choice(blueprint_library.filter('vehicle.tesla.model3'))
+  vehicle = world.spawn_actor(vehicle_bp, world_map.get_spawn_points()[16]) #Point 283 is right in front for long control
 
   # make tires less slippery
   wheel_control = carla.WheelPhysicsControl(tire_friction=5)
@@ -113,6 +116,12 @@ def go(q):
   physics_control.torque_curve = [[20.0, 500.0], [5000.0, 500.0]]
   physics_control.gear_switch_time = 0.0
   vehicle.apply_physics_control(physics_control)
+
+  if args.long_test:
+    vehicle_test_bp = random.choice(blueprint_library.filter('vehicle.tesla.model3'))
+    vehicle_test = world.spawn_actor(vehicle_test_bp, world_map.get_spawn_points()[283])  # Point 283 is right in front for long control
+    vehicle_test.apply_physics_control(physics_control)
+    vehicle_test.set_autopilot(True)
 
   if args.autopilot:
     vehicle.set_autopilot(True)
@@ -220,7 +229,16 @@ if __name__ == "__main__":
   params.put("HasAcceptedTerms", terms_version)
   params.put("CompletedTrainingVersion", training_version)
   params.put("CommunityFeaturesToggle", "1")
-  params.put("CalibrationParams", '{"vanishing_point": [582.06, 442.78], "valid_blocks": 20}')
+  params.put("CalibrationParams", '{"vanishing_point": [582.06, 442.78], "valid_blocks": 20, "calib_radians":[0, -0.0036804510179076896, -0.001153260986851604]}')
+  #if args.control_long_disabled:
+   # params.put("ControlsLongDisabled", "0")
+  #else:
+   # params.put("ControlsLongDisabled", "1")
+  #if args.control_lat_disabled:
+   # params.put("ControlsLatDisabled", "0")
+  #else:
+   # params.put("ControlsLatDisabled", "1")
+
 
   # no carla, still run
   try:
@@ -244,3 +262,5 @@ if __name__ == "__main__":
     # start input poll for keyboard
     from lib.keyboard_ctrl import keyboard_poll_thread
     keyboard_poll_thread(q)
+
+

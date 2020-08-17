@@ -119,7 +119,9 @@ class Calibrator():
         calib = get_calib_from_vp(self.vp)
         cal_params = {"calib_radians": list(calib),
                       "valid_blocks": self.valid_blocks}
+
         put_nonblocking("CalibrationParams", json.dumps(cal_params).encode('utf8'))
+        #cloudlog.error("CALIB_RADIANS {}".format(list(calib)))
       return new_vp
     else:
       return None

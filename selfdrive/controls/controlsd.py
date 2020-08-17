@@ -22,6 +22,7 @@ from selfdrive.controls.lib.alertmanager import AlertManager
 from selfdrive.controls.lib.vehicle_model import VehicleModel
 from selfdrive.controls.lib.planner import LON_MPC_STEP
 from selfdrive.locationd.calibration_helpers import Calibration
+from selfdrive.swaglog import cloudlog
 
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
 LANE_DEPARTURE_THRESHOLD = 0.1
@@ -69,14 +70,18 @@ class Controls:
     self.CI, self.CP = get_car(self.can_sock, self.pm.sock['sendcan'], has_relay)
 
     # read params
-    params = Params()
-    self.is_metric = params.get("IsMetric", encoding='utf8') == "1"
-    self.is_ldw_enabled = params.get("IsLdwEnabled", encoding='utf8') == "1"
-    internet_needed = params.get("Offroad_ConnectivityNeeded", encoding='utf8') is not None
-    community_feature_toggle = params.get("CommunityFeaturesToggle", encoding='utf8') == "1"
-    openpilot_enabled_toggle = params.get("OpenpilotEnabledToggle", encoding='utf8') == "1"
-    passive = params.get("Passive", encoding='utf8') == "1" or \
+    self.params = Params()
+    self.is_metric = self.params.get("IsMetric", encoding='utf8') == "1"
+    self.is_ldw_enabled = self.params.get("IsLdwEnabled", encoding='utf8') == "1"
+    internet_needed = self.params.get("Offroad_ConnectivityNeeded", encoding='utf8') is not None
+    community_feature_toggle = self.params.get("CommunityFeaturesToggle", encoding='utf8') == "1"
+    openpilot_enabled_toggle = self.params.get("OpenpilotEnabledToggle", encoding='utf8') == "1"
+    passive = self.params.get("Passive", encoding='utf8') == "1" or \
               internet_needed or not openpilot_enabled_toggle
+
+    ###### LONG CONTROL DISABLING CODE  ########
+    #self.long_control_disabled = self.params.get("ControlsLongDisabled", encoding='utf8') == "1"
+    ###### LONG CONTROL DISABLING CODE  ########
 
     # detect sound card presence and ensure successful init
     sounds_available = (not ANDROID or (os.path.isfile('/proc/asound/card0/state') and
@@ -93,9 +98,15 @@ class Controls:
 
     # Write CarParams for radard and boardd safety mode
     cp_bytes = self.CP.to_bytes()
-    params.put("CarParams", cp_bytes)
+    self.params.put("CarParams", cp_bytes)
     put_nonblocking("CarParamsCache", cp_bytes)
-    put_nonblocking("LongitudinalControl", "1" if self.CP.openpilotLongitudinalControl else "0")
+
+    ###### LONG CONTROL DISABLING CODE  ########
+    #put_nonblocking("LongitudinalControl", "1" if self.CP.openpilotLongitudinalControl and not self.long_control_disabled else "0")
+
+    #cloudlog.warning("LongitudinalControl = {}".format(self.params.get("LongitudinalControl", encoding='utf8')))
+    #cloudlog.warning("long_control_disabled = {}".format(self.long_control_disabled))
+    ###### LONG CONTROL DISABLING CODE  ########
 
     self.CC = car.CarControl.new_message()
     self.AM = AlertManager()
@@ -204,7 +215,15 @@ class Controls:
       # only plan not being received: radar not communicating
       self.events.add(EventName.radarCommIssue)
     elif not self.sm.all_alive_and_valid():
-      self.events.add(EventName.commIssue)
+      processes = ['thermal', 'health', 'frame', 'model', 'liveCalibration',
+                   'dMonitoringState', 'plan', 'pathPlan', 'liveLocationKalman']
+      for p in processes:
+        if not self.sm.alive[p]:
+          #cloudlog.error("PROCESS DEAD: " + p)
+          pass
+      #self.events.add(EventName.commIssue)
+
+      pass
     if not self.sm['pathPlan'].mpcSolutionValid:
       self.events.add(EventName.plannerError)
     if not self.sm['liveLocationKalman'].sensorsOK and os.getenv("NOSENSOR") is None:
@@ -240,7 +259,6 @@ class Controls:
     # Update carState from CAN
     can_strs = messaging.drain_sock_raw(self.can_sock, wait_for_one=True)
     CS = self.CI.update(self.CC, can_strs)
-
     self.sm.update(0)
 
     # Check for CAN timeout
@@ -266,6 +284,15 @@ class Controls:
 
   def state_transition(self, CS):
     """Compute conditional state transitions and execute actions on state transitions"""
+    ###### LONG CONTROL DISABLING CODE  ########
+    #self.long_control_disabled = self.params.get("ControlsLongDisabled", encoding='utf8') == "1"
+    ###### LONG CONTROL DISABLING CODE  ########
+
+    ###### LONG CONTROL DISABLING CODE  ########
+    #put_nonblocking("LongitudinalControl", "1" if self.CP.openpilotLongitudinalControl and not self.long_control_disabled else "0")
+    #cloudlog.warning("LongitudinalControl = {}".format(self.params.get("LongitudinalControl", encoding='utf8')))
+    #cloudlog.warning("long_control_disabled = {}".format(self.long_control_disabled))
+    ###### LONG CONTROL DISABLING CODE  ########
 
     self.v_cruise_kph_last = self.v_cruise_kph
 
@@ -365,8 +392,11 @@ class Controls:
     a_acc_sol = plan.aStart + (dt / LON_MPC_STEP) * (plan.aTarget - plan.aStart)
     v_acc_sol = plan.vStart + dt * (a_acc_sol + plan.aStart) / 2.0
 
+
+
     # Gas/Brake PID loop
     actuators.gas, actuators.brake = self.LoC.update(self.active, CS, v_acc_sol, plan.vTargetFuture, a_acc_sol, self.CP)
+
     # Steering PID loop and lateral MPC
     actuators.steer, actuators.steerAngle, lac_log = self.LaC.update(self.active, CS, self.CP, path_plan)
 

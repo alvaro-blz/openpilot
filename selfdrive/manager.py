@@ -205,7 +205,7 @@ def get_running():
   return running
 
 # due to qualcomm kernel bugs SIGKILLing camerad sometimes causes page table corruption
-unkillable_processes = ['camerad']
+unkillable_processes = []
 
 # processes to end with SIGINT instead of SIGTERM
 interrupt_processes: List[str] = []
@@ -428,6 +428,9 @@ def manager_thread():
   # now loop
   thermal_sock = messaging.sub_sock('thermal')
 
+  #car_dead = messaging.SubMaster(['CarDead'])
+  car_dead_sock = messaging.sub_sock('CarDead')
+
   if os.getenv("GET_CPU_USAGE"):
     proc_sock = messaging.sub_sock('procLog', conflate=True)
 
@@ -466,6 +469,7 @@ def manager_thread():
 
   while 1:
     msg = messaging.recv_sock(thermal_sock, wait=True)
+    car_dead = messaging.recv_sock(car_dead_sock, wait=False)
 
     # heavyweight batch processes are gated on favorable thermal conditions
     if msg.thermal.thermalStatus >= ThermalStatus.yellow:
@@ -496,8 +500,22 @@ def manager_thread():
       elif "driverview" in running and params.get("IsDriverViewEnabled") == b"0":
         kill_managed_process("driverview")
 
+    # Kill Controlsd if car is dead
+    if car_dead.CarDead:
+      kill_managed_process("controlsd")
     # check the status of all processes, did any of them die?
-    running_list = ["%s%s\u001b[0m" % ("\u001b[32m" if running[p].is_alive() else "\u001b[31m", p) for p in running]
+    running_list = []
+    for p in running:
+      if running[p].is_alive():
+        running_list.append("%s%s\u001b[0m" % ("\u001b[32m",p))
+      else:
+        running_list.append("%s%s\u001b[0m" % ("\u001b[31m", p))
+        try:
+          start_managed_process(p)
+        except:
+          pass
+    #running_list = ["%s%s\u001b[0m" % ("\u001b[32m" if running[p].is_alive() else "\u001b[31m", p) for p in running]
+
     cloudlog.debug(' '.join(running_list))
 
     # Exit main loop when uninstall is needed
