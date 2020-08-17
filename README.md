@@ -66,8 +66,8 @@ Supported Cars
 | ----------| ------------------------------| ------------------| -----------------| -------------------| ------------------|
 | Acura     | ILX 2016-18                   | AcuraWatch Plus   | openpilot        | 25mph<sup>1</sup>  | 25mph             |
 | Acura     | RDX 2016-18                   | AcuraWatch Plus   | openpilot        | 25mph<sup>1</sup>  | 12mph             |
-| Honda     | Accord 2018-19                | All               | Stock            | 0mph               | 3mph              |
-| Honda     | Accord Hybrid 2018-19         | All               | Stock            | 0mph               | 3mph              |
+| Honda     | Accord 2018-20                | All               | Stock            | 0mph               | 3mph              |
+| Honda     | Accord Hybrid 2018-20         | All               | Stock            | 0mph               | 3mph              |
 | Honda     | Civic Hatchback 2017-19       | Honda Sensing     | Stock            | 0mph               | 12mph             |
 | Honda     | Civic Sedan/Coupe 2016-18     | Honda Sensing     | openpilot        | 0mph               | 12mph             |
 | Honda     | Civic Sedan/Coupe 2019-20     | Honda Sensing     | Stock            | 0mph               | 2mph<sup>2</sup>  |
@@ -76,12 +76,13 @@ Supported Cars
 | Honda     | CR-V Hybrid 2017-2019         | Honda Sensing     | Stock            | 0mph               | 12mph             |
 | Honda     | Fit 2018-19                   | Honda Sensing     | openpilot        | 25mph<sup>1</sup>  | 12mph             |
 | Honda     | HR-V 2019                     | Honda Sensing     | openpilot        | 25mph<sup>1</sup>  | 12mph             |
-| Honda     | Insight 2019                  | Honda Sensing     | Stock            | 0mph               | 3mph              |
+| Honda     | Insight 2019-20               | Honda Sensing     | Stock            | 0mph               | 3mph              |
 | Honda     | Odyssey 2018-20               | Honda Sensing     | openpilot        | 25mph<sup>1</sup>  | 0mph              |
 | Honda     | Passport 2019                 | All               | openpilot        | 25mph<sup>1</sup>  | 12mph             |
 | Honda     | Pilot 2016-18                 | Honda Sensing     | openpilot        | 25mph<sup>1</sup>  | 12mph             |
 | Honda     | Pilot 2019                    | All               | openpilot        | 25mph<sup>1</sup>  | 12mph             |
 | Honda     | Ridgeline 2017-20             | Honda Sensing     | openpilot        | 25mph<sup>1</sup>  | 12mph             |
+| Hyundai   | Sonata 2020                   | All               | Stock            | 0mph               | 0mph              |
 | Lexus     | CT Hybrid 2017-18             | All               | Stock<sup>3</sup>| 0mph               | 0mph              |
 | Lexus     | ES 2019                       | All               | openpilot        | 0mph               | 0mph              |
 | Lexus     | ES Hybrid 2019                | All               | openpilot        | 0mph               | 0mph              |
@@ -135,6 +136,7 @@ Community Maintained Cars and Features
 | Chrysler  | Pacifica 2020                 | Adaptive Cruise   | Stock            | 0mph               | 39mph        |
 | Chrysler  | Pacifica Hybrid 2017-18       | Adaptive Cruise   | Stock            | 0mph               | 9mph         |
 | Chrysler  | Pacifica Hybrid 2019-20       | Adaptive Cruise   | Stock            | 0mph               | 39mph        |
+| Genesis   | G70 2018                      | All               | Stock            | 0mph               | 0mph         |
 | Genesis   | G80 2018                      | All               | Stock            | 0mph               | 0mph         |
 | Genesis   | G90 2018                      | All               | Stock            | 0mph               | 0mph         |
 | GMC       | Acadia Denali 2018<sup>2</sup>| Adaptive Cruise   | openpilot        | 0mph               | 7mph         |
@@ -143,21 +145,23 @@ Community Maintained Cars and Features
 | Hyundai   | Genesis 2015-16               | SCC + LKAS        | Stock            | 19mph              | 37mph        |
 | Hyundai   | Ioniq Electric Premium SE 2020| SCC + LKAS        | Stock            | 0mph               | 32mph        |
 | Hyundai   | Ioniq Electric Limited 2019   | SCC + LKAS        | Stock            | 0mph               | 32mph        |
-| Hyundai   | Kona 2017-19                  | SCC + LKAS        | Stock            | 22mph              | 0mph         |
+| Hyundai   | Kona 2020                     | SCC + LKAS        | Stock            | 0mph               | 0mph         |
 | Hyundai   | Kona EV 2019                  | SCC + LKAS        | Stock            | 0mph               | 0mph         |
 | Hyundai   | Palisade 2020                 | All               | Stock            | 0mph               | 0mph         |
 | Hyundai   | Santa Fe 2019                 | All               | Stock            | 0mph               | 0mph         |
-| Hyundai   | Sonata 2019-20                | All               | Stock            | 0mph               | 0mph         |
+| Hyundai   | Sonata 2019                   | All               | Stock            | 0mph               | 0mph         |
+| Hyundai   | Veloster 2019                 | SCC + LKAS        | Stock            | 5mph               | 0mph         |
 | Jeep      | Grand Cherokee 2016-18        | Adaptive Cruise   | Stock            | 0mph               | 9mph         |
-| Jeep      | Grand Cherokee 2019           | Adaptive Cruise   | Stock            | 0mph               | 39mph        |
+| Jeep      | Grand Cherokee 2019-20        | Adaptive Cruise   | Stock            | 0mph               | 39mph        |
 | Kia       | Forte 2018-19                 | SCC + LKAS        | Stock            | 0mph               | 0mph         |
 | Kia       | Optima 2017                   | SCC + LKAS/LDWS   | Stock            | 0mph               | 32mph        |
 | Kia       | Optima 2019                   | SCC + LKAS        | Stock            | 0mph               | 0mph         |
 | Kia       | Sorento 2018                  | SCC + LKAS        | Stock            | 0mph               | 0mph         |
 | Kia       | Stinger 2018                  | SCC + LKAS        | Stock            | 0mph               | 0mph         |
-| Nissan    | Leaf 2018-19<sup>2</sup>      | Propilot          | Stock            | 0mph               | 0mph         |
-| Nissan    | Rogue 2019<sup>2</sup>        | Propilot          | Stock            | 0mph               | 0mph         |
-| Nissan    | X-Trail 2017<sup>2</sup>      | Propilot          | Stock            | 0mph               | 0mph         |
+| Nissan    | Leaf 2018-19                  | Propilot          | Stock            | 0mph               | 0mph         |
+| Nissan    | Rogue 2019                    | Propilot          | Stock            | 0mph               | 0mph         |
+| Nissan    | X-Trail 2017                  | Propilot          | Stock            | 0mph               | 0mph         |
+| Subaru    | Ascent 2019                   | EyeSight          | Stock            | 0mph               | 0mph         |
 | Subaru    | Crosstrek 2018-19             | EyeSight          | Stock            | 0mph               | 0mph         |
 | Subaru    | Forester 2019                 | EyeSight          | Stock            | 0mph               | 0mph         |
 | Subaru    | Impreza 2017-19               | EyeSight          | Stock            | 0mph               | 0mph         |
@@ -330,7 +334,7 @@ NO WARRANTY EXPRESSED OR IMPLIED.**
 
 <img src="https://d1qb2nb5cznatu.cloudfront.net/startups/i/1061157-bc7e9bf3b246ece7322e6ffe653f6af8-medium_jpg.jpg?buster=1458363130" width="75"></img> <img src="https://cdn-images-1.medium.com/max/1600/1*C87EjxGeMPrkTuVRVWVg4w.png" width="225"></img>
 
-[![openpilot tests](https://github.com/commaai/openpilot/workflows/openpilot%20tests/badge.svg)](https://github.com/commaai/openpilot/actions)
+[![openpilot tests](https://github.com/commaai/openpilot/workflows/openpilot%20tests/badge.svg?event=push)](https://github.com/commaai/openpilot/actions)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/commaai/openpilot.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/commaai/openpilot/alerts/)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/commaai/openpilot.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/commaai/openpilot/context:python)
 [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/commaai/openpilot.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/commaai/openpilot/context:cpp)
