@@ -60,6 +60,7 @@ def plot_cluster(pts, idx_old, idx_new):
     plt.title("New")
     plt.colorbar()
 
+    #plt.savefig("mygraph.png")
     plt.show()
 
 
@@ -132,7 +133,7 @@ class TestClustering(unittest.TestCase):
       t = time.time()
       cluster_idx = cluster_points_centroid(pts, 2.5)
       t_new += time.time() - t
-
+      #plot_cluster(pts, old_cluster_idx, cluster_idx)
       self.assertTrue(same_clusters(old_cluster_idx, cluster_idx))
 
 

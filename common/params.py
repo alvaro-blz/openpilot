@@ -60,6 +60,10 @@ keys = {
   "CommunityFeaturesToggle": [TxType.PERSISTENT],
   "CompletedTrainingVersion": [TxType.PERSISTENT],
   "ControlsParams": [TxType.PERSISTENT],
+###########CUSTOM LONG LAT DISABLING CODE ##############################
+  "ControlsLongDisabled": [TxType.CLEAR_ON_MANAGER_START],
+  "ControlsLatDisabled": [TxType.CLEAR_ON_MANAGER_START],
+###########CUSTOM LONG LAT DISABLING CODE ##############################
   "DisablePowerDown": [TxType.PERSISTENT],
   "DisableUpdates": [TxType.PERSISTENT],
   "DoUninstall": [TxType.CLEAR_ON_MANAGER_START],
