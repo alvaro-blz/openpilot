@@ -1,4 +1,12 @@
-[![](https://i.imgur.com/UelUjKAh.png)](#)
+VIL Setup
+=======================
+1. Run .ubuntu_setup.sh
+2. Install cuda and cudnn according to the Tensorflow version
+3. Panda udev rules (Mode:=0777)
+
+
+
+
 
 Table of Contents
 =======================

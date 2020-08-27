@@ -56,17 +56,28 @@ def imu_callback(imu):
   pm.send('sensorEvents', dat)
 
 def health_function():
-  pm = messaging.PubMaster(['health'])
+  #pm = messaging.PubMaster(['health'])
+  health_sock = messaging.pub_sock('health')
   rk = Ratekeeper(1.0)
   while 1:
-    dat = messaging.new_message('health')
-    dat.valid = True
-    dat.health = {
-      'ignitionLine': True,
-      'hwType': "greyPanda",
-      'controlsAllowed': True
-    }
-    pm.send('health', dat)
+    #dat = messaging.new_message('health')
+
+    #dat.valid = True
+    #dat.health = {
+    #  'ignitionLine': True,
+    #  'ignition_can': True,
+    #  'hwType': "greyPanda",
+    #  'controlsAllowed': True
+    #}
+    #pm.send('health', dat)
+    msg = messaging.new_message('health')
+    msg.health.ignitionLine = True
+    msg.health.ignitionCan = True
+    msg.health.hwType = "greyPanda"
+    msg.health.controlsAllowed = True
+
+    health_sock.send(msg.to_bytes())
+
     rk.keep_time()
 
 def fake_driver_monitoring():
@@ -253,6 +264,7 @@ if __name__ == "__main__":
   p = Process(target=go, args=(q,))
   p.daemon = True
   p.start()
+
 
   if args.joystick:
     # start input poll for joystick

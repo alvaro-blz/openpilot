@@ -109,8 +109,8 @@ void safety_setter_thread() {
   auto safety_param = car_params.getSafetyParam();
   LOGW("setting safety model: %d with param %d", (int)safety_model, safety_param);
 
-  panda->set_safety_model(safety_model, safety_param);
-
+  //panda->set_safety_model(safety_model, safety_param);
+  panda->set_safety_model(cereal::CarParams::SafetyModel::ALL_OUTPUT);
   safety_setter_thread_running = false;
 }
 
@@ -241,7 +241,6 @@ void can_send_thread() {
 
 void can_recv_thread() {
   LOGD("start recv thread");
-
   // can = 8006
   PubMaster pm({"can"});
 
@@ -268,7 +267,8 @@ void can_recv_thread() {
 
 void can_health_thread() {
   LOGD("start health thread");
-  PubMaster pm({"health"});
+  LOGW("start health thread");
+  //PubMaster pm({"health"});
 
   uint32_t no_ignition_cnt = 0;
   bool ignition_last = false;
@@ -281,7 +281,7 @@ void can_health_thread() {
     auto healthData = event.initHealth();
 
     healthData.setHwType(cereal::HealthData::HwType::UNKNOWN);
-    pm.send("health", msg);
+    //pm.send("health", msg);
     usleep(500*1000);
   }
 
@@ -293,6 +293,9 @@ void can_health_thread() {
     auto healthData = event.initHealth();
 
     health_t health = panda->get_health();
+
+    health.ignition_line = true;
+    health.ignition_can = true;
 
     if (spoofing_started) {
       health.ignition_line = 1;
@@ -333,6 +336,7 @@ void can_health_thread() {
       if (!safety_setter_thread_running) {
         safety_setter_thread_running = true;
         std::thread(safety_setter_thread).detach();
+        LOGW("Safety setter thread running");
       } else {
         LOGW("Safety setter thread already running");
       }
@@ -382,7 +386,7 @@ void can_health_thread() {
         i++;
       }
     }
-    pm.send("health", msg);
+    //pm.send("health", msg);
     panda->send_heartbeat();
     usleep(500*1000);
   }

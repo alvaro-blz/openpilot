@@ -45,14 +45,6 @@ def keyboard_poll_thread(q):
     if c == '3':
       q.put(str("cruise_cancel"))
     if c == 'q':
-      pm = messaging.PubMaster(['CarDead'])
-      dat = messaging.new_message('CarDead')
-      dat.valid = True
-      dat.CarDead = {
-        'CarDead': True,
-      }
-      print('CarDead msg sent')
-      pm.send('CarDead', dat)
       exit(0)
 
 def test(q):
