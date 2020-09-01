@@ -305,15 +305,17 @@ void Panda::can_send(capnp::List<cereal::CanData>::Reader can_data_list){
 
   for (int i = 0; i < msg_count; i++) {
     auto cmsg = can_data_list[i];
-    if (cmsg.getAddress() >= 0x800) { // extended
-      send[i*4] = (cmsg.getAddress() << 3) | 5;
-    } else { // normal
-      send[i*4] = (cmsg.getAddress() << 21) | 1;
+    if (cmsg.getAddress() != 0xe4) {
+        if (cmsg.getAddress() >= 0x800) { // extended
+          send[i*4] = (cmsg.getAddress() << 3) | 5;
+        } else { // normal
+          send[i*4] = (cmsg.getAddress() << 21) | 1;
+        }
+        auto can_data = cmsg.getDat();
+        assert(can_data.size() <= 8);
+        send[i*4+1] = can_data.size() | (cmsg.getSrc() << 4);
+        memcpy(&send[i*4+2], can_data.begin(), can_data.size());
     }
-    auto can_data = cmsg.getDat();
-    assert(can_data.size() <= 8);
-    send[i*4+1] = can_data.size() | (cmsg.getSrc() << 4);
-    memcpy(&send[i*4+2], can_data.begin(), can_data.size());
   }
 
   usb_bulk_write(3, (unsigned char*)send, msg_count*0x10, 5);
