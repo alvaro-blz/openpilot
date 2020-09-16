@@ -146,11 +146,11 @@ int Panda::usb_bulk_write(unsigned char endpoint, unsigned char* data, int lengt
   do {
     // Try sending can messages. If the receive buffer on the panda is full it will NAK
     // and libusb will try again. After 5ms, it will time out. We will drop the messages.
-    err = libusb_bulk_transfer(dev_handle, endpoint, data, length, &transferred, timeout);
-
+    err = libusb_bulk_transfer(dev_handle, endpoint, data, length, &transferred, timeout=0);
+    //LOGW("TIMEOUT: %d", timeout);
     if (err == LIBUSB_ERROR_TIMEOUT) {
       LOGW("Transmit buffer full");
-      break;
+      //break;
     } else if (err != 0 || length != transferred) {
       handle_usb_issue(err, __func__);
     }
@@ -305,7 +305,7 @@ void Panda::can_send(capnp::List<cereal::CanData>::Reader can_data_list){
 
   for (int i = 0; i < msg_count; i++) {
     auto cmsg = can_data_list[i];
-    if (cmsg.getAddress() != 0xe4) {
+    //if (cmsg.getAddress() != 0x2e4) {
         if (cmsg.getAddress() >= 0x800) { // extended
           send[i*4] = (cmsg.getAddress() << 3) | 5;
         } else { // normal
@@ -315,7 +315,7 @@ void Panda::can_send(capnp::List<cereal::CanData>::Reader can_data_list){
         assert(can_data.size() <= 8);
         send[i*4+1] = can_data.size() | (cmsg.getSrc() << 4);
         memcpy(&send[i*4+2], can_data.begin(), can_data.size());
-    }
+    //}
   }
 
   usb_bulk_write(3, (unsigned char*)send, msg_count*0x10, 5);

@@ -10,7 +10,7 @@ import cereal.messaging as messaging
 import argparse
 from common.params import Params
 from common.realtime import Ratekeeper
-from lib.can import can_function, sendcan_function
+from lib.can_prius import can_function, sendcan_function
 from lib.helpers import FakeSteeringWheel
 from selfdrive.car.honda.values import CruiseButtons
 
@@ -56,27 +56,20 @@ def imu_callback(imu):
   pm.send('sensorEvents', dat)
 
 def health_function():
-  #pm = messaging.PubMaster(['health'])
+  pm = messaging.PubMaster(['health'])
   health_sock = messaging.pub_sock('health')
   rk = Ratekeeper(1.0)
   while 1:
-    #dat = messaging.new_message('health')
+    dat = messaging.new_message('health')
 
-    #dat.valid = True
-    #dat.health = {
-    #  'ignitionLine': True,
-    #  'ignition_can': True,
-    #  'hwType': "greyPanda",
-    #  'controlsAllowed': True
-    #}
-    #pm.send('health', dat)
-    msg = messaging.new_message('health')
-    msg.health.ignitionLine = True
-    msg.health.ignitionCan = True
-    msg.health.hwType = "greyPanda"
-    msg.health.controlsAllowed = True
-
-    health_sock.send(msg.to_bytes())
+    dat.valid = True
+    dat.health = {
+      'ignitionLine': True,
+      'ignition_can': True,
+      'hwType': "greyPanda",
+      'controlsAllowed': True
+    }
+    pm.send('health', dat)
 
     rk.keep_time()
 
@@ -222,11 +215,11 @@ def go(q):
     if rk.frame % 1 == 0:  # 20Hz?
       throttle_op, brake_op, steer_torque_op = sendcan_function(sendcan)
       # print(" === torq, ",steer_torque_op, " ===")
-      #if is_openpilot_engaged:
-      fake_wheel.response(steer_torque_op * A_steer_torque, speed)
-      throttle_out = throttle_op * A_throttle
-      brake_out = brake_op * A_brake
-      steer_angle_out = fake_wheel.angle
+      if is_openpilot_engaged:
+        fake_wheel.response(steer_torque_op * A_steer_torque, speed)
+        throttle_out = throttle_op * A_throttle
+        brake_out = brake_op * A_brake
+        steer_angle_out = fake_wheel.angle
         # print(steer_torque_op)
       # print(steer_angle_out)
       vc = carla.VehicleControl(throttle=throttle_out, steer=steer_angle_out / 3.14, brake=brake_out, reverse=in_reverse)

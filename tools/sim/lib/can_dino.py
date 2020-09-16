@@ -70,26 +70,11 @@ def can_function(pm, speed, angle, idx, cruise_button=0, is_engaged=False):
   #msg.append(packer.make_can_msg("STEER_TORQUE_SENSOR", 0, {"STEER_ANGLE": angle_to_sangle(angle)}, idx))
   #msg.append(packer.make_can_msg("STEER_ANGLE_SENSOR", 0, {"STEER_ANGLE": angle_to_sangle(angle)}, idx))
 
-  pm.send('can', can_list_to_can_capnp(msg))
+  #pm.send('can', can_list_to_can_capnp(msg))
 
 def sendcan_function(sendcan):
   sc = messaging.drain_sock_raw(sendcan)
   cp.update_strings(sc, sendcan=True)
-
-  #if cp.vl[0x1fa]['COMPUTER_BRAKE_REQUEST']:
-  #  brake = cp.vl[0x1fa]['COMPUTER_BRAKE'] * 0.003906248
-  #else:
-  #  brake = 0.0
-
-  #if cp.vl[0x200]['GAS_COMMAND'] > 0:
-  #  gas = cp.vl[0x200]['GAS_COMMAND'] / 256.0
-  #else:
-  #  gas = 0.0
-
-  #if cp.vl[0xe4]['STEER_TORQUE_REQUEST']:
-  #  steer_torque = cp.vl[0xe4]['STEER_TORQUE']*1.0/0x1000
-  #else:
-   # steer_torque = 0.0
 
   if cp.vl[0x1fa]['COMPUTER_BRAKE_REQUEST']:
     brake = cp.vl[0x1fa]['COMPUTER_BRAKE'] * 0.003906248
@@ -100,12 +85,11 @@ def sendcan_function(sendcan):
     gas = cp.vl[0x200]['GAS_COMMAND'] / 256.0
   else:
     gas = 0.0
-  try:
-    if cp.vl[0x2e4]['STEER_TORQUE_CMD']:
-      steer_torque = cp.vl[0xe4]['STEER_TORQUE_CMD'] * 1.0 / 0x1000
-    else:
-      steer_torque = 0.0
-  except:
-      steer_torque = 0.0
+
+  if cp.vl[0xe4]['STEER_TORQUE_REQUEST']:
+    steer_torque = cp.vl[0xe4]['STEER_TORQUE']*1.0/0x1000
+  else:
+    steer_torque = 0.0
+
 
   return (gas, brake, steer_torque)

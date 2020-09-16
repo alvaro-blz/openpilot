@@ -141,8 +141,8 @@ class Controls:
       self.events.add(EventName.communityFeatureDisallowed, static=True)
     if self.read_only and not passive:
       self.events.add(EventName.carUnrecognized, static=True)
-    if hw_type == HwType.whitePanda:
-      self.events.add(EventName.whitePandaUnsupported, static=True)
+    #if hw_type == HwType.whitePanda:
+     # self.events.add(EventName.whitePandaUnsupported, static=True)
 
     # controlsd is driven by can recv, expected at 100Hz
     self.rk = Ratekeeper(100, print_delay_threshold=None)
@@ -196,7 +196,8 @@ class Controls:
       self.events.add(EventName.laneChange)
 
     if self.can_rcv_error or (not CS.canValid and self.sm.frame > 5 / DT_CTRL):
-      self.events.add(EventName.canError)
+      #self.events.add(EventName.canError)
+      pass
     if self.mismatch_counter >= 200:
       self.events.add(EventName.controlsMismatch)
     if not self.sm.alive['plan'] and self.sm.alive['pathPlan']:

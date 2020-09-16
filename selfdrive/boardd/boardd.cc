@@ -268,7 +268,7 @@ void can_recv_thread() {
 void can_health_thread() {
   LOGD("start health thread");
   LOGW("start health thread");
-  //PubMaster pm({"health"});
+  PubMaster pm({"health"});
 
   uint32_t no_ignition_cnt = 0;
   bool ignition_last = false;
@@ -281,7 +281,7 @@ void can_health_thread() {
     auto healthData = event.initHealth();
 
     healthData.setHwType(cereal::HealthData::HwType::UNKNOWN);
-    //pm.send("health", msg);
+    pm.send("health", msg);
     usleep(500*1000);
   }
 
@@ -294,8 +294,8 @@ void can_health_thread() {
 
     health_t health = panda->get_health();
 
-    health.ignition_line = true;
-    health.ignition_can = true;
+    //health.ignition_line = true;
+    //health.ignition_can = true;
 
     if (spoofing_started) {
       health.ignition_line = 1;
@@ -386,7 +386,7 @@ void can_health_thread() {
         i++;
       }
     }
-    //pm.send("health", msg);
+    pm.send("health", msg);
     panda->send_heartbeat();
     usleep(500*1000);
   }

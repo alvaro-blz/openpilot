@@ -318,7 +318,8 @@ class CarInterface(CarInterfaceBase):
     events = self.create_common_events(ret)
 
     if self.cp_cam.can_invalid_cnt >= 200 and self.CP.enableCamera:
-      events.add(EventName.invalidGiraffeToyota)
+      #events.add(EventName.invalidGiraffeToyota)
+      pass
     if self.CS.low_speed_lockout and self.CP.openpilotLongitudinalControl:
       events.add(EventName.lowSpeedLockout)
     if ret.vEgo < self.CP.minEnableSpeed and self.CP.openpilotLongitudinalControl:

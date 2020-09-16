@@ -6,6 +6,7 @@ from selfdrive.car.toyota.toyotacan import create_steer_command, create_ui_comma
                                            create_fcw_command
 from selfdrive.car.toyota.values import Ecu, CAR, STATIC_MSGS, SteerLimitParams
 from opendbc.can.packer import CANPacker
+from selfdrive.swaglog import cloudlog
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
@@ -158,5 +159,6 @@ class CarController():
     for (addr, ecu, cars, bus, fr_step, vl) in STATIC_MSGS:
       if frame % fr_step == 0 and ecu in self.fake_ecus and CS.CP.carFingerprint in cars:
         can_sends.append(make_can_msg(addr, vl, bus))
+        cloudlog.error("DSU MESSAGES SENT\n")
 
     return can_sends
