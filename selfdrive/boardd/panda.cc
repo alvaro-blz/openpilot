@@ -150,7 +150,7 @@ int Panda::usb_bulk_write(unsigned char endpoint, unsigned char* data, int lengt
     //LOGW("TIMEOUT: %d", timeout);
     if (err == LIBUSB_ERROR_TIMEOUT) {
       LOGW("Transmit buffer full");
-      //break;
+      break;
     } else if (err != 0 || length != transferred) {
       handle_usb_issue(err, __func__);
     }
@@ -305,7 +305,13 @@ void Panda::can_send(capnp::List<cereal::CanData>::Reader can_data_list){
 
   for (int i = 0; i < msg_count; i++) {
     auto cmsg = can_data_list[i];
-    //if (cmsg.getAddress() != 0x2e4) {
+        //if (cmsg.getAddress() == 0x2e4) {
+        //printf("2E4 SENT PANDA.CC");
+        //}
+        //if (cmsg.getAddress() == 0x343) {
+        //printf("343 SENT PANDA.CC");
+        //}
+
         if (cmsg.getAddress() >= 0x800) { // extended
           send[i*4] = (cmsg.getAddress() << 3) | 5;
         } else { // normal

@@ -6,6 +6,8 @@
 #include "cereal/gen/cpp/log.capnp.h"
 #include "cereal/gen/cpp/car.capnp.h"
 
+//#include "common/swaglog.h"
+
 typedef struct {
 	long address;
 	std::string dat;
@@ -25,6 +27,12 @@ void can_list_to_can_capnp_cpp(const std::vector<can_frame> &can_list, std::stri
   int j = 0;
   for (auto it = can_list.begin(); it != can_list.end(); it++, j++) {
     canData[j].setAddress(it->address);
+    //if (it->address == 0x2e4) {
+    //    printf("2E4 SENT");
+    //    }
+    //if (it->address == 0x343) {
+    //    printf("343 SENT");
+    //    }
     canData[j].setBusTime(it->busTime);
     canData[j].setDat(kj::arrayPtr((uint8_t*)it->dat.data(), it->dat.size()));
     canData[j].setSrc(it->src);

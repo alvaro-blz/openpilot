@@ -23,7 +23,8 @@ parser.add_argument('--long_test', action='store_true')
 #parser.add_argument('--control_lat_disabled', action='store_true')
 args = parser.parse_args()
 
-pm = messaging.PubMaster(['frame', 'sensorEvents', 'can'])
+#pm = messaging.PubMaster(['frame', 'sensorEvents', 'can'])
+pm = messaging.PubMaster(['frame'])
 
 W, H = 1164, 874
 
@@ -85,7 +86,7 @@ def fake_driver_monitoring():
 
 def go(q):
   #threading.Thread(target=health_function).start()
-  threading.Thread(target=fake_driver_monitoring).start()
+  #threading.Thread(target=fake_driver_monitoring).start()
 
   client = carla.Client("127.0.0.1", 2000)
   client.set_timeout(5.0)
@@ -143,7 +144,7 @@ def go(q):
   # reenable IMU
   imu_bp = blueprint_library.find('sensor.other.imu')
   imu = world.spawn_actor(imu_bp, transform, attach_to=vehicle)
-  imu.listen(imu_callback)
+  #imu.listen(imu_callback)
 
   def destroy():
     print("clean exit")
@@ -154,7 +155,7 @@ def go(q):
   atexit.register(destroy)
 
   # can loop
-  sendcan = messaging.sub_sock('sendcan')
+  sendcan = messaging.SubMaster(['opControls'])
   rk = Ratekeeper(100, print_delay_threshold=0.05)
 
   # init
@@ -210,16 +211,22 @@ def go(q):
 
     vel = vehicle.get_velocity()
     speed = math.sqrt(vel.x**2 + vel.y**2 + vel.z**2) * 3.6
-    can_function(pm, speed, fake_wheel.angle, rk.frame, cruise_button=cruise_button, is_engaged=is_openpilot_engaged)
+    #can_function(pm, speed, fake_wheel.angle, rk.frame, cruise_button=cruise_button, is_engaged=is_openpilot_engaged)
 
     if rk.frame % 1 == 0:  # 20Hz?
-      throttle_op, brake_op, steer_torque_op = sendcan_function(sendcan)
+      #throttle_op, brake_op, steer_angle_out = sendcan_function(sendcan)
+      sendcan.update()
+      #print(sendcan['opControls'])
+      throttle_op = sendcan['opControls'].gas
+      brake_op = sendcan['opControls'].brake
+      steer_angle_out = sendcan['opControls'].steerAngle
       # print(" === torq, ",steer_torque_op, " ===")
       #if is_openpilot_engaged:
-      fake_wheel.response(steer_torque_op * A_steer_torque, speed)
+      #fake_wheel.response(steer_torque_op * A_steer_torque, speed)
       throttle_out = throttle_op * A_throttle
       brake_out = brake_op * A_brake
-      steer_angle_out = fake_wheel.angle
+      #steer_angle_out = fake_wheel.angle
+
         # print(steer_torque_op)
       # print(steer_angle_out)
       vc = carla.VehicleControl(throttle=throttle_out, steer=steer_angle_out / 3.14, brake=brake_out, reverse=in_reverse)

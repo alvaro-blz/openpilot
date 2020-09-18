@@ -321,7 +321,8 @@ class CarInterface(CarInterfaceBase):
       #events.add(EventName.invalidGiraffeToyota)
       pass
     if self.CS.low_speed_lockout and self.CP.openpilotLongitudinalControl:
-      events.add(EventName.lowSpeedLockout)
+      #events.add(EventName.lowSpeedLockout)
+      pass
     if ret.vEgo < self.CP.minEnableSpeed and self.CP.openpilotLongitudinalControl:
       events.add(EventName.belowEngageSpeed)
       if c.actuators.gas > 0.1:

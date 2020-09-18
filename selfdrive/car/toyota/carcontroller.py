@@ -113,8 +113,8 @@ class CarController():
 
       # LTA mode. Set ret.steerControlType = car.CarParams.SteerControlType.angle and whitelist 0x191 in the panda
       # if frame % 2 == 0:
-      #   can_sends.append(create_steer_command(self.packer, 0, 0, frame // 2))
-      #   can_sends.append(create_lta_steer_command(self.packer, actuators.steerAngle, apply_steer_req, frame // 2))
+         #can_sends.append(create_steer_command(self.packer, 0, 0, frame // 2))
+         #can_sends.append(create_lta_steer_command(self.packer, actuators.steerAngle, apply_steer_req, frame // 2))
 
     # we can spam can to cancel the system even if we are using lat only control
     if (frame % 3 == 0 and CS.CP.openpilotLongitudinalControl) or (pcm_cancel_cmd and Ecu.fwdCamera in self.fake_ecus):
@@ -125,8 +125,10 @@ class CarController():
         can_sends.append(create_acc_cancel_command(self.packer))
       elif CS.CP.openpilotLongitudinalControl:
         can_sends.append(create_accel_command(self.packer, apply_accel, pcm_cancel_cmd, self.standstill_req, lead))
+        #cloudlog.error("343 MESSAGES SENT\n")
       else:
         can_sends.append(create_accel_command(self.packer, 0, pcm_cancel_cmd, False, lead))
+        #cloudlog.error("343 MESSAGES SENT\n")
 
     if (frame % 2 == 0) and (CS.CP.enableGasInterceptor):
       # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
@@ -159,6 +161,6 @@ class CarController():
     for (addr, ecu, cars, bus, fr_step, vl) in STATIC_MSGS:
       if frame % fr_step == 0 and ecu in self.fake_ecus and CS.CP.carFingerprint in cars:
         can_sends.append(make_can_msg(addr, vl, bus))
-        cloudlog.error("DSU MESSAGES SENT\n")
+        #cloudlog.error("DSU MESSAGES SENT\n")
 
     return can_sends

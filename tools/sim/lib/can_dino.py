@@ -6,11 +6,12 @@ from selfdrive.car.honda.values import FINGERPRINTS, CAR
 from selfdrive.car import crc8_pedal
 import math
 
-from selfdrive.test.longitudinal_maneuvers.plant import get_car_can_parser
-cp = get_car_can_parser()
+#from selfdrive.boardd.boardd import can_capnp_to_can_list
+#from selfdrive.test.longitudinal_maneuvers.plant import get_car_can_parser
+#cp = get_car_can_parser()
 
 #packer = CANPacker("honda_civic_touring_2016_can_generated")
-packer = CANPacker("toyota_prius_2017_pt_generated")
+#packer = CANPacker("toyota_prius_2017_pt_generated")
 #rpacker = CANPacker("acura_ilx_2016_nidec")
 
 SR = 7.5
@@ -72,24 +73,30 @@ def can_function(pm, speed, angle, idx, cruise_button=0, is_engaged=False):
 
   #pm.send('can', can_list_to_can_capnp(msg))
 
+
 def sendcan_function(sendcan):
-  sc = messaging.drain_sock_raw(sendcan)
-  cp.update_strings(sc, sendcan=True)
+  #sc = messaging.drain_sock_raw(sendcan)
+  print(sendcan['opControls'])
+  #cp = get_car_can_parser()
+  #cp.update_strings(sc, sendcan=True)
 
-  if cp.vl[0x1fa]['COMPUTER_BRAKE_REQUEST']:
-    brake = cp.vl[0x1fa]['COMPUTER_BRAKE'] * 0.003906248
-  else:
-    brake = 0.0
+  #if cp.vl[0x1fa]['COMPUTER_BRAKE_REQUEST']:
+  #  brake = cp.vl[0x1fa]['COMPUTER_BRAKE'] * 0.003906248
+  #else:
+  #  brake = 0.0
 
-  if cp.vl[0x200]['GAS_COMMAND'] > 0:
-    gas = cp.vl[0x200]['GAS_COMMAND'] / 256.0
-  else:
-    gas = 0.0
+  #if cp.vl[0x200]['GAS_COMMAND'] > 0:
+  #  gas = cp.vl[0x200]['GAS_COMMAND'] / 256.0
+  #else:
+  #  gas = 0.0
 
-  if cp.vl[0xe4]['STEER_TORQUE_REQUEST']:
-    steer_torque = cp.vl[0xe4]['STEER_TORQUE']*1.0/0x1000
-  else:
-    steer_torque = 0.0
+  #if cp.vl[0xe4]['STEER_TORQUE_REQUEST']:
+  #  steer_torque = cp.vl[0xe4]['STEER_TORQUE']*1.0/0x1000
+  #else:
+  #  steer_torque = 0.0
+  gas = sendcan['opControls'].gas
+  brake = sendcan['opControls'].brake
+  steer = sendcan['opControls'].steer
+  steer_angle_out = sendcan['opControls'].steerAngle
 
-
-  return (gas, brake, steer_torque)
+  return (gas, brake, steer_angle_out)

@@ -48,7 +48,9 @@ class Controls:
     self.pm = pm
     if self.pm is None:
       self.pm = messaging.PubMaster(['sendcan', 'controlsState', 'carState',
-                                     'carControl', 'carEvents', 'carParams'])
+                                     'carControl', 'carEvents', 'carParams',
+                                     'opControls'])
+
 
     self.sm = sm
     if self.sm is None:
@@ -448,6 +450,13 @@ class Controls:
       # send car controls over can
       can_sends = self.CI.apply(CC)
       self.pm.send('sendcan', can_list_to_can_capnp(can_sends, msgtype='sendcan', valid=CS.canValid))
+
+      act = messaging.new_message('opControls')
+      act.opControls = {"gas": actuators.gas,
+                           "brake": actuators.brake,
+                           "steer": actuators.steer,
+                           "steerAngle": actuators.steerAngle}
+      self.pm.send('opControls', act)
 
     force_decel = (self.sm['dMonitoringState'].awarenessStatus < 0.) or \
                     (self.state == State.softDisabling)

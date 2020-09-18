@@ -109,8 +109,8 @@ void safety_setter_thread() {
   auto safety_param = car_params.getSafetyParam();
   LOGW("setting safety model: %d with param %d", (int)safety_model, safety_param);
 
-  panda->set_safety_model(safety_model, safety_param);
-  //panda->set_safety_model(cereal::CarParams::SafetyModel::ALL_OUTPUT);
+  //panda->set_safety_model(safety_model, safety_param);
+  panda->set_safety_model(cereal::CarParams::SafetyModel::ALL_OUTPUT);
   safety_setter_thread_running = false;
 }
 
@@ -201,12 +201,13 @@ void can_recv(PubMaster &pm) {
 }
 
 void can_send_thread() {
-  LOGD("start send thread");
+  LOGW("start send thread");
 
   Context * context = Context::create();
   SubSocket * subscriber = SubSocket::create(context, "sendcan");
   assert(subscriber != NULL);
   subscriber->setTimeout(100);
+
 
   // run as fast as messages come in
   while (!do_exit && panda->connected) {
@@ -216,7 +217,7 @@ void can_send_thread() {
       if (errno == EINTR) {
         do_exit = true;
       }
-      continue;
+     continue;
     }
 
     auto amsg = kj::heapArray<capnp::word>((msg->getSize() / sizeof(capnp::word)) + 1);
