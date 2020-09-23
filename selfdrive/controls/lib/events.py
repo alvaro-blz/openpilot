@@ -230,7 +230,7 @@ EVENTS = {
   EventName.startupWhitePanda: {
     ET.PERMANENT: Alert(
       "WARNING: White panda is deprecated",
-      "Upgrade to comma two or black panda",
+      "Upgrade to coma two or black panda",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 15.),
   },

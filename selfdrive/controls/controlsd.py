@@ -23,6 +23,8 @@ from selfdrive.controls.lib.vehicle_model import VehicleModel
 from selfdrive.controls.lib.planner import LON_MPC_STEP
 from selfdrive.locationd.calibration_helpers import Calibration
 
+from selfdrive.swaglog import cloudlog
+
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
 LANE_DEPARTURE_THRESHOLD = 0.1
 STEER_ANGLE_SATURATION_TIMEOUT = 1.0 / DT_CTRL
@@ -49,13 +51,14 @@ class Controls:
     if self.pm is None:
       self.pm = messaging.PubMaster(['sendcan', 'controlsState', 'carState',
                                      'carControl', 'carEvents', 'carParams',
-                                     'opControls'])
+                                     ])
 
 
     self.sm = sm
     if self.sm is None:
       self.sm = messaging.SubMaster(['thermal', 'health', 'frame', 'model', 'liveCalibration',
-                                     'dMonitoringState', 'plan', 'pathPlan', 'liveLocationKalman'])
+                                     'dMonitoringState', 'plan', 'pathPlan', 'liveLocationKalman',
+                                     'carlaState'])
 
     self.can_sock = can_sock
     if can_sock is None:
@@ -205,13 +208,16 @@ class Controls:
     if not self.sm.alive['plan'] and self.sm.alive['pathPlan']:
       # only plan not being received: radar not communicating
       self.events.add(EventName.radarCommIssue)
+
     elif not self.sm.all_alive_and_valid():
-      self.events.add(EventName.commIssue)
+      #self.events.add(EventName.commIssue)
+      pass
     if not self.sm['pathPlan'].mpcSolutionValid:
       self.events.add(EventName.plannerError)
     if not self.sm['liveLocationKalman'].sensorsOK and os.getenv("NOSENSOR") is None:
       if self.sm.frame > 5 / DT_CTRL:  # Give locationd some time to receive all the inputs
-        self.events.add(EventName.sensorDataInvalid)
+        #self.events.add(EventName.sensorDataInvalid)
+        pass
     if not self.sm['liveLocationKalman'].gpsOK and (self.distance_traveled > 1000) and os.getenv("NOSENSOR") is None:
       # Not show in first 1 km to allow for driving out of garage. This event shows after 5 minutes
       self.events.add(EventName.noGps)
@@ -378,8 +384,13 @@ class Controls:
 
     # Check for difference between desired angle and angle for angle based control
     angle_control_saturated = self.CP.steerControlType == car.CarParams.SteerControlType.angle and \
-      abs(actuators.steerAngle - CS.steeringAngle) > STEER_ANGLE_SATURATION_THRESHOLD
+                              abs(actuators.steerAngle - self.sm['carlaState'].angle) > STEER_ANGLE_SATURATION_THRESHOLD
+      #abs(actuators.steerAngle - CS.steeringAngle) > STEER_ANGLE_SATURATION_THRESHOLD
 
+
+
+
+    print("controls_steering 1= {}".format(self.sm['carlaState'].angle))
     if angle_control_saturated and not CS.steeringPressed and self.active:
       self.saturated_count += 1
     else:
@@ -451,17 +462,19 @@ class Controls:
       can_sends = self.CI.apply(CC)
       self.pm.send('sendcan', can_list_to_can_capnp(can_sends, msgtype='sendcan', valid=CS.canValid))
 
-      act = messaging.new_message('opControls')
-      act.opControls = {"gas": actuators.gas,
-                           "brake": actuators.brake,
-                           "steer": actuators.steer,
-                           "steerAngle": actuators.steerAngle}
-      self.pm.send('opControls', act)
+      #act = messaging.new_message('opControls')
+      #act.opControls = {"gas": actuators.gas,
+      #                     "brake": actuators.brake,
+      #                     "steer": actuators.steer,
+      #                     "steerAngle": actuators.steerAngle}
+      #self.pm.send('opControls', act)
 
     force_decel = (self.sm['dMonitoringState'].awarenessStatus < 0.) or \
                     (self.state == State.softDisabling)
 
-    steer_angle_rad = (CS.steeringAngle - self.sm['pathPlan'].angleOffset) * CV.DEG_TO_RAD
+    #steer_angle_rad = (CS.steeringAngle - self.sm['pathPlan'].angleOffset) * CV.DEG_TO_RAD
+    steer_angle_rad = (self.sm['carlaState'].angle - self.sm['pathPlan'].angleOffset) * CV.DEG_TO_RAD
+    print("controls_steering 2= {}".format(self.sm['carlaState'].angle))
 
     # controlsState
     dat = messaging.new_message('controlsState')
@@ -482,7 +495,9 @@ class Controls:
     controlsState.active = self.active
     controlsState.vEgo = CS.vEgo
     controlsState.vEgoRaw = CS.vEgoRaw
-    controlsState.angleSteers = CS.steeringAngle
+    #controlsState.angleSteers = CS.steeringAngle
+    controlsState.angleSteers = self.sm['carlaState'].angle
+    print("controls_steering = {}".format(self.sm['carlaState'].angle))
     controlsState.curvature = self.VM.calc_curvature(steer_angle_rad, CS.vEgo)
     controlsState.steerOverride = CS.steeringPressed
     controlsState.state = self.state

@@ -94,9 +94,11 @@ def sendcan_function(sendcan):
   #  steer_torque = cp.vl[0xe4]['STEER_TORQUE']*1.0/0x1000
   #else:
   #  steer_torque = 0.0
-  gas = sendcan['opControls'].gas
+  gas = sendcan['opControls'].gas*0.02
   brake = sendcan['opControls'].brake
   steer = sendcan['opControls'].steer
   steer_angle_out = sendcan['opControls'].steerAngle
+
+
 
   return (gas, brake, steer_angle_out)
