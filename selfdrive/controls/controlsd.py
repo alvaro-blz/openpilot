@@ -390,7 +390,7 @@ class Controls:
 
 
 
-    print("controls_steering 1= {}".format(self.sm['carlaState'].angle))
+    #print("controls_steering 1= {}".format(self.sm['carlaState'].angle))
     if angle_control_saturated and not CS.steeringPressed and self.active:
       self.saturated_count += 1
     else:
@@ -474,7 +474,7 @@ class Controls:
 
     #steer_angle_rad = (CS.steeringAngle - self.sm['pathPlan'].angleOffset) * CV.DEG_TO_RAD
     steer_angle_rad = (self.sm['carlaState'].angle - self.sm['pathPlan'].angleOffset) * CV.DEG_TO_RAD
-    print("controls_steering 2= {}".format(self.sm['carlaState'].angle))
+    #print("controls_steering 2= {}".format(self.sm['carlaState'].angle))
 
     # controlsState
     dat = messaging.new_message('controlsState')
@@ -497,7 +497,7 @@ class Controls:
     controlsState.vEgoRaw = CS.vEgoRaw
     #controlsState.angleSteers = CS.steeringAngle
     controlsState.angleSteers = self.sm['carlaState'].angle
-    print("controls_steering = {}".format(self.sm['carlaState'].angle))
+    #print("controls_steering = {}".format(self.sm['carlaState'].angle))
     controlsState.curvature = self.VM.calc_curvature(steer_angle_rad, CS.vEgo)
     controlsState.steerOverride = CS.steeringPressed
     controlsState.state = self.state

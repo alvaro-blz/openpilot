@@ -14,7 +14,7 @@ from lib.can_dino import can_function, sendcan_function
 from lib.helpers import FakeSteeringWheel
 from selfdrive.car.honda.values import CruiseButtons
 
-STEER_RATIO = 15.
+STEER_RATIO = 25.
 
 parser = argparse.ArgumentParser(description='Bridge between CARLA and openpilot.')
 parser.add_argument('--autopilot', action='store_true')
@@ -136,10 +136,14 @@ def go():
   vehicle.apply_physics_control(physics_control)
 
   if args.long_test:
+    tm = client.get_trafficmanager()
+    tm_port = tm.get_port()
+
     vehicle_test_bp = random.choice(blueprint_library.filter('vehicle.tesla.model3'))
     vehicle_test = world.spawn_actor(vehicle_test_bp, world_map.get_spawn_points()[283])  # Point 283 is right in front for long control
     vehicle_test.apply_physics_control(physics_control)
-    vehicle_test.set_autopilot(True)
+    vehicle_test.set_autopilot(True, tm_port)
+    tm.vehicle_percentage_speed_difference(vehicle_test, -10)
 
   if args.autopilot:
     vehicle.set_autopilot(True)
@@ -182,7 +186,7 @@ def go():
 
   throttle_out = 0
   brake_out = 0
-  steer_out = 0.0
+  steer_out = steer_op = 0.0
 
   old_steer = steer_out
 
@@ -235,18 +239,21 @@ def go():
     #throttle_op, brake_op, steer_angle_out = sendcan_function(sendcan)
     sendcan.update(0)
     #print('sendcan update')
+    angle_carla = messaging.new_message('carlaState')
+    angle_carla.carlaState = {"angle": steer_op}
+    carla_state.send('carlaState', angle_carla)
+
+
     throttle_op = sendcan['carControl'].actuators.gas  # [0,1]
     brake_op = sendcan['carControl'].actuators.brake  # [0,1]
     vel_dino = sendcan['carState'].vEgo  #mps
     steer_op = sendcan['controlsState'].angleSteersDes  # degrees [-180,180]
-    print("steer_op = {}".format(steer_out))
+    #print("steer_op = {}".format(steer_out))
     steer_out = steer_op
 
-    angle_carla = messaging.new_message('carlaState')
-    angle_carla.carlaState = {"angle": steer_out}
-    carla_state.send('carlaState', angle_carla)
 
-    steer_out = steer_rate_limit(old_steer, steer_out)
+
+    #steer_out = steer_rate_limit(old_steer, steer_out)
 
     old_steer = steer_out
     steer_carla = steer_out / (max_steer_angle * STEER_RATIO * -1)
@@ -265,11 +272,11 @@ def go():
     #                                    vel_dino*math.cos(math.radians(yaw-90)), 0.0))
 
       vehicle.set_velocity(carla.Vector3D(vel_dino * fwd.x,
-                                          vel_dino * fwd.y, vel.z))
+                                          vel_dino * fwd.y, vel_dino * fwd.z))
     #vel = vehicle.get_velocity()
     #speed = math.sqrt(vel.x ** 2 + vel.y ** 2 + vel.z ** 2)
     #print("carla_speed = {}".format(speed*2.2))
-    print("steer_out = {}".format(steer_carla))
+    #print("steer_carla = {}".format(steer_carla))
 
       #print(sendcan['opControls'])
 
@@ -285,10 +292,22 @@ def go():
       #vc = carla.VehicleControl(throttle=throttle_out, steer=steer_angle_out / 3.14, brake=brake_out, reverse=in_reverse)
     vc.throttle = throttle_out
     #print('Throttle_Carla = {}'.format(throttle_out))
-    vc.steer = 0
+    if throttle_out != 0.0 or brake_out != 0.0:
+      vc.steer = steer_carla
+    else:
+      vc.steer = 0
     vc.brake = brake_out
     vehicle.apply_control(vc)
 
+    #fwd_test = vehicle_test.get_transform().rotation.get_forward_vector()
+    #vel_test = vehicle_test.get_velocity()
+    #speed_test = math.sqrt(vel_test.x ** 2 + vel_test.y ** 2 + vel_test.z ** 2) * 3.6
+    #if abs(speed) >  32.1  :
+     # vehicle_test.set_velocity(carla.Vector3D(vel_dino * fwd_test.x,
+     #                                          vel_dino * fwd_test.y, vel_dino * fwd_test.z))
+
+
+    #print("speed_test = {}".format(speed_test*0.62))
     rk.keep_time()
 
 if __name__ == "__main__":
