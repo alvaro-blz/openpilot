@@ -21,6 +21,7 @@ parser.add_argument('--autopilot', action='store_true')
 parser.add_argument('--joystick', action='store_true')
 parser.add_argument('--realmonitoring', action='store_true')
 parser.add_argument('--long_test', action='store_true')
+parser.add_argument('--hil', action='store_true')
 #parser.add_argument('--control_long_disabled', action='store_true')
 #parser.add_argument('--control_lat_disabled', action='store_true')
 args = parser.parse_args()
@@ -144,6 +145,15 @@ def go():
     vehicle_test.apply_physics_control(physics_control)
     vehicle_test.set_autopilot(True, tm_port)
     tm.vehicle_percentage_speed_difference(vehicle_test, -10)
+
+  if args.hil:
+    if not args.long_test:
+      tm = client.get_trafficmanager()
+      tm_port = tm.get_port()
+
+    vehicle.set_autopilot(True, tm_port)
+    tm.ignore_lights_percentage(vehicle, 100)
+    tm.distance_to_leading_vehicle(vehicle, 0)
 
   if args.autopilot:
     vehicle.set_autopilot(True)
@@ -297,7 +307,13 @@ def go():
     else:
       vc.steer = 0
     vc.brake = brake_out
-    vehicle.apply_control(vc)
+
+    if not args.hil:
+      vehicle.apply_control(vc)
+    elif args.hil:
+      fwd = vehicle.get_transform().rotation.get_forward_vector()
+      vehicle.set_velocity(carla.Vector3D(vel_dino * fwd.x,
+                                          vel_dino * fwd.y, vel_dino * fwd.z))
 
     #fwd_test = vehicle_test.get_transform().rotation.get_forward_vector()
     #vel_test = vehicle_test.get_velocity()
