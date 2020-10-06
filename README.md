@@ -43,7 +43,7 @@ actuators.gas, actuators.brake = self.LoC.update(self.active, CS, v_acc_sol, pla
 # Steering PID loop and lateral MPC
 actuators.steer, actuators.steerAngle, lac_log = self.LaC.update(self.active, CS, self.CP, path_plan)
  ```
- Changing those lines and defining new values of actuators.gas, actuators.brake, actuators.steer and actuators.steerAngle will change the values that Openpilot sends to the vehicle and Carla.
+ Changing those lines and defining new values of `actuators.gas`, `actuators.brake`, `actuators.steer` and `actuators.steerAngle` will change the values that Openpilot sends to the vehicle and Carla.
 
 
 Table of Contents
