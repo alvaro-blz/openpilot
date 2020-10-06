@@ -2,10 +2,48 @@ VIL Setup
 =======================
 1. Run .ubuntu_setup.sh
 2. Install cuda and cudnn according to the Tensorflow version
-3. Panda udev rules (Mode:=0777)
+3. If Ubuntu can't access the Pandas set Panda udev rules (MODE:=0666 if MODE=0666 doesn't work) 
 
+Note that you may have to setup [udev rules](https://community.comma.ai/wiki/index.php/Panda#Linux_udev_rules) for Linux, such as
+``` bash
+sudo tee /etc/udev/rules.d/11-panda.rules <<EOF
+SUBSYSTEM=="usb", ATTRS{idVendor}=="bbaa", ATTRS{idProduct}=="ddcc", MODE="0666"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="bbaa", ATTRS{idProduct}=="ddee", MODE="0666"
+EOF
+sudo udevadm control --reload-rules && sudo udevadm trigger
+```
 
+4. Run Carla (./Carla.sh on terminal)
+5. The code to avoid steering commands is located inside selfdrive/car/(maker)/(maker)can.py. The idea is to replace the value in the steering signal with 0 so that controls.py still sends steering commands to Carla but not to the vehicle.
+6. The bridge between Carla and Openpilot is in openpilot/tools/sim/bridge_dino_carla.py. To run:
 
+#### Add export PYTHONPATH=$HOME/openpilot to your bashrc
+
+#### openpilot (in terminal 2) 
+NOBOARD defines if the Panda will be used. If no Panda -> NOBOARD=1; if there is a Panda and we want to send CAN messages -> NOBOARD=0
+```
+cd ~/openpilot/selfdrive/
+PASSIVE=0 NOBOARD=1 ./manager.py
+```
+#### bridge (in terminal 3)
+```
+### links carla to openpilot, will "start the car" according to manager
+cd ~/openpilot/tools/sim
+./bridge_dino_carla.py
+```
+#### Controls
+The vehicle ACC determines when Openpilot engages. Speed is also controlled through the vehicle.
+
+#### Other info:
+- bridge_dino_carla.py can be run in multiple ways (following a vehicle, with human control,...): More info can be found in the file comments.
+- controlsd.py sends gas, brake and steering commands using the actuators object. The controls are set in lines 380 - 383:
+```
+# Gas/Brake PID loop
+actuators.gas, actuators.brake = self.LoC.update(self.active, CS, v_acc_sol, plan.vTargetFuture, a_acc_sol, self.CP)
+# Steering PID loop and lateral MPC
+actuators.steer, actuators.steerAngle, lac_log = self.LaC.update(self.active, CS, self.CP, path_plan)
+ ```
+ Changing those lines and defining new values of actuators.gas, actuators.brake, actuators.steer and actuators.steerAngle will change the values that Openpilot sends to the vehicle and Carla.
 
 
 Table of Contents
