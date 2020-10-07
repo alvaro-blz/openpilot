@@ -2,7 +2,8 @@ VIL Setup
 =======================
 1. Run .ubuntu_setup.sh
 2. Install cuda and cudnn according to the Tensorflow version
-3. If Ubuntu can't access the Pandas set Panda udev rules (MODE:=0666 if MODE=0666 doesn't work) 
+3. If Ubuntu can't access the Pandas set Panda udev rules (`MODE:=0666` if `MODE=0666` doesn't work) 
+4. Before going any further make sure Openpilot and Carla can run inside Ubuntu (follow the instructions inside `openpilot/tools/sim` and always update Openpilot and its subrepos to the latest version)
 
 Note that you may have to setup [udev rules](https://community.comma.ai/wiki/index.php/Panda#Linux_udev_rules) for Linux, such as
 ``` bash
@@ -13,14 +14,16 @@ EOF
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 
-4. Run Carla (./Carla.sh on terminal)
-5. The code to avoid steering commands is located inside selfdrive/car/(maker)/(maker)can.py. The idea is to replace the value in the steering signal with 0 so that controls.py still sends steering commands to Carla but not to the vehicle.
-6. The bridge between Carla and Openpilot is in openpilot/tools/sim/bridge_dino_carla.py. To run:
+5. Run Carla (`./Carla.sh` on terminal or `openpilot/tools/sim/start_carla.sh`)
+6. The code to avoid steering commands is located inside selfdrive/car/(maker)/(maker)can.py. The idea is to replace the value in the steering signal with 0 so that controls.py still sends steering commands to Carla but not to the vehicle. ***Black Panda is strongly suggested.***
+7. If Openpilot runs but does not engage comment out the particular error. Errors can be found inside `events.py`and by searching the whole Openpilot repo find what file is triggering the error (`controlsd.py` is usually the first suspect)
+8. The bridge between Carla and Openpilot is in openpilot/tools/sim/bridge_dino_carla.py. To run:
 
 #### Add export PYTHONPATH=$HOME/openpilot to your bashrc
 
 #### openpilot (in terminal 2) 
-NOBOARD defines if the Panda will be used. If no Panda -> NOBOARD=1; if there is a Panda and we want to send CAN messages -> NOBOARD=0
+NOBOARD defines if the Panda will be used. 
+If no Panda -> NOBOARD=1; if there is a Panda and we want to send CAN messages -> NOBOARD=0
 ```
 cd ~/openpilot/selfdrive/
 PASSIVE=0 NOBOARD=1 ./manager.py
