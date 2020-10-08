@@ -1,6 +1,6 @@
 VIL Setup
 =======================
-1. Run .ubuntu_setup.sh
+1. Run `openpilot/tools/ubuntu_setup.sh
 2. Install cuda and cudnn according to the Tensorflow version (https://www.tensorflow.org/install/source#tested_build_configurations)
 3. If Ubuntu can't access the Pandas set Panda udev rules (`MODE:=0666` if `MODE=0666` doesn't work) 
 4. Before going any further make sure Openpilot and Carla can run virtually in Ubuntu (follow the instructions inside `openpilot/tools/sim` and always update Openpilot and its subrepos to the latest version)
