@@ -1,9 +1,9 @@
 VIL Setup
 =======================
 1. Run .ubuntu_setup.sh
-2. Install cuda and cudnn according to the Tensorflow version
+2. Install cuda and cudnn according to the Tensorflow version (https://www.tensorflow.org/install/source#tested_build_configurations)
 3. If Ubuntu can't access the Pandas set Panda udev rules (`MODE:=0666` if `MODE=0666` doesn't work) 
-4. Before going any further make sure Openpilot and Carla can run inside Ubuntu (follow the instructions inside `openpilot/tools/sim` and always update Openpilot and its subrepos to the latest version)
+4. Before going any further make sure Openpilot and Carla can run virtually in Ubuntu (follow the instructions inside `openpilot/tools/sim` and always update Openpilot and its subrepos to the latest version)
 
 Note that you may have to setup [udev rules](https://community.comma.ai/wiki/index.php/Panda#Linux_udev_rules) for Linux, such as
 ``` bash
@@ -15,7 +15,13 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 
 5. Run Carla (`./Carla.sh` on terminal or `openpilot/tools/sim/start_carla.sh`)
-6. The code to avoid steering commands is located inside selfdrive/car/(maker)/(maker)can.py. The idea is to replace the value in the steering signal with 0 so that controls.py still sends steering commands to Carla but not to the vehicle. ***Black Panda is strongly suggested.***
+6. The code to avoid steering commands is located inside selfdrive/car/(maker)/(maker)can.py. The idea is to replace the value in the steering signal with 0 so that controls.py still sends steering commands to Carla but not to the vehicle. Black Panda is preferred for all CAN communications.
+**** Make sure the Panda is in ALL_OUTPUT mode (Blue and Red LED blinking).**** 
+The output mode of the Panda is set on line 113 of `openpilot/selfdrive/board/boardd.py`:
+```
+panda->set_safety_model(cereal::CarParams::SafetyModel::ALL_OUTPUT);
+```
+
 7. If Openpilot runs but does not engage comment out the particular error. Errors can be found inside `events.py`and by searching the whole Openpilot repo find what file is triggering the error (`controlsd.py` is usually the first suspect)
 8. The bridge between Carla and Openpilot is in openpilot/tools/sim/bridge_dino_carla.py. To run:
 
@@ -38,7 +44,8 @@ cd ~/openpilot/tools/sim
 The vehicle ACC determines when Openpilot engages. Speed is also controlled through the vehicle.
 
 #### Other info:
-- bridge_dino_carla.py can be run in multiple ways (following a vehicle, with human control,...): More info can be found in the file comments.
+- bridge_dino_carla.py can be run in multiple ways (following a vehicle, with human control and overriding the speed of the vehicle in front): 
+More info can be found in the file comments.
 - controlsd.py sends gas, brake and steering commands using the actuators object. The controls are set in lines 380 - 383:
 ```
 # Gas/Brake PID loop
@@ -46,7 +53,47 @@ actuators.gas, actuators.brake = self.LoC.update(self.active, CS, v_acc_sol, pla
 # Steering PID loop and lateral MPC
 actuators.steer, actuators.steerAngle, lac_log = self.LaC.update(self.active, CS, self.CP, path_plan)
  ```
- Changing those lines and defining new values of `actuators.gas`, `actuators.brake`, `actuators.steer` and `actuators.steerAngle` will change the values that Openpilot sends to the vehicle and Carla.
+ Changing those lines and defining new values of `actuators.gas`, `actuators.brake`, `actuators.steer` and `actuators.steerAngle` will change the values that Openpilot sends to the vehicle and Carla. Make sure the scales are the same Openpilot uses:
+ 
+```
+gas #[0,1]
+brake #[0,1]
+steerAngle # degrees [-180,180]
+steer is just a 0 or 1 value depending on if it needs to steer or not
+```
+
+`openpilot/tools/sim/driver_model_server.py` takes the input from a USB webcam and trasmit that to Openpilot. It may be useful if the computer can't
+ handle Openpilot and Carla at the same time.
+
+
+#### Possible way of adding new vehicles
+- If the vehicle has long and lat control supported by Openpilot then it should be straightforward. Openpilot will control the vehicle when the ACC is engaged.
+- If the vehicle has lateral Openpilot and not longitudinal an option is to create a function to send acceleration/gas commands and hope the vehicle responds to that. Somethin similar to this but replacing the values with the ones in the DBC file of the vehicle for the accel/gas message:
+```
+def create_accel_command(packer, accel, pcm_cancel, standstill_req, lead):
+  # TODO: find the exact canceling bit that does not create a chime
+  values = {
+    "ACCEL_CMD": accel
+    "SET_ME_X01": 1,
+    "DISTANCE": 0,
+    "MINI_CAR": lead,
+    "SET_ME_X3": 3,
+    "PERMIT_BRAKING": 1,
+    "RELEASE_STANDSTILL": not standstill_req,
+    "CANCEL_REQ": pcm_cancel,
+  }
+  return packer.make_can_msg("ACC_CONTROL", 0, values)
+
+```
+All vehicle functions to send CAN messages are located in `openpilot/selfdrive/car/(maker)/(maker)can.py`
+These functions are called inside `openpilot/selfdrice/car/(maker)/carcontroller.py`
+Therefore, a call to the created function would have to be made inside the `update`function of the `CarController` object. In particular after `can_send = []`is created and append it to `can_send`so that its actuallt sent through CAN.
+
+
+#### Carla
+- Show points in map
+- Add Cameras and sensors, get radar distance and print it
+- Edit Carla Server Address
 
 
 Table of Contents
