@@ -17,7 +17,8 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 5. Run Carla (`./Carla.sh` on terminal or `openpilot/tools/sim/start_carla.sh`)
 6. The code to avoid steering commands is located inside selfdrive/car/(maker)/(maker)can.py. The idea is to replace the value in the steering signal with 0 so that controls.py still sends steering commands to Carla but not to the vehicle. Black Panda is preferred for all CAN communications.
 
-**** Make sure the Panda is in ALL_OUTPUT mode (Blue and Red LED blinking).**** 
+**** Make sure the Panda is in ALL_OUTPUT mode (Blue and Red LED blinking) **** 
+
 The output mode of the Panda is set on line 113 of `openpilot/selfdrive/board/boardd.py`:
 ```
 panda->set_safety_model(cereal::CarParams::SafetyModel::ALL_OUTPUT);
