@@ -99,8 +99,12 @@ Therefore, a call to the created function would have to be made inside the `upda
 - Show points in map
 - Add Cameras and sensors, get radar distance and print it
 - Edit Carla Server Address
+- Add Sumo how to
 
 #### List of modified files and lines modified
+#### Schematics of vehicle connections
+#### Check how to make duplicate repo private
+
 
 
 
