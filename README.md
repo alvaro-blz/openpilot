@@ -100,7 +100,8 @@ Therefore, a call to the created function would have to be made inside the `upda
 - Add Cameras and sensors, get radar distance and print it
 - Edit Carla Server Address
 
-#### List of modified files
+#### List of modified files and lines modified
+
 
 
 Table of Contents
