@@ -19,12 +19,14 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 
 **** Make sure the Panda is in ALL_OUTPUT mode (Blue and Red LED blinking) **** 
 
-The output mode of the Panda is set on line 113 of `openpilot/selfdrive/board/boardd.py`:
+The output mode of the Panda is set on line 113 of `openpilot/selfdrive/board/boardd.cc`:
 ```
-panda->set_safety_model(cereal::CarParams::SafetyModel::ALL_OUTPUT);
+#Replace this one with ALL_OUTPUT
+panda->set_safety_model(safety_model, safety_param); #Comment out
+panda->set_safety_model(cereal::CarParams::SafetyModel::ALL_OUTPUT); #Add
 ```
 
-7. If Openpilot runs but does not engage comment out the particular error. Errors can be found inside `events.py`and by searching the whole Openpilot repo find what file is triggering the error (`controlsd.py` is usually the first suspect)
+7. If Openpilot runs but does not engage comment out the particular error. Errors can be found inside `events.py`and by searching the whole Openpilot repo find what file is triggering the error (`controlsd.py` is usually the first suspect) ### Add events location and how to search
 8. The bridge between Carla and Openpilot is in openpilot/tools/sim/bridge_dino_carla.py. To run:
 
 #### Add export PYTHONPATH=$HOME/openpilot to your bashrc
