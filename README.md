@@ -30,6 +30,7 @@ panda->set_safety_model(cereal::CarParams::SafetyModel::ALL_OUTPUT);
 #### openpilot (in terminal 2) 
 NOBOARD defines if the Panda will be used. 
 If no Panda -> NOBOARD=1; if there is a Panda and we want to send CAN messages -> NOBOARD=0
+If we want to start Openpilot without a Panda line 105 of `openpilot/tools/sim/bridge_dino_carla.py`has to be uncommented: `threading.Thread(target=health_function).start()`
 ```
 cd ~/openpilot/selfdrive/
 PASSIVE=0 NOBOARD=1 ./manager.py
