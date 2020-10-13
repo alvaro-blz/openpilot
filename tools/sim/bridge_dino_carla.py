@@ -10,9 +10,7 @@ import cereal.messaging as messaging
 import argparse
 from common.params import Params
 from common.realtime import Ratekeeper
-from lib.can_dino import can_function, sendcan_function
 from lib.helpers import FakeSteeringWheel
-from selfdrive.car.honda.values import CruiseButtons
 
 STEER_RATIO = 25.
 
@@ -263,7 +261,7 @@ def go():
       vc.steer = 0
     vc.brake = brake_out
 
-    # Openpilot controls are only applied if we're not running with human control    
+    # Openpilot controls are only applied if we're not running with human control
     if not args.hil:
       vehicle.apply_control(vc)
     elif args.hil:
