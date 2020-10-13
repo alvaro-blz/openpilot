@@ -1,6 +1,6 @@
 VIL Setup
 =======================
-1. Run `openpilot/tools/ubuntu_setup.sh
+1. Run `openpilot/tools/ubuntu_setup.sh`
 2. Install cuda and cudnn according to the Tensorflow version (https://www.tensorflow.org/install/source#tested_build_configurations)
 3. If Ubuntu can't access the Pandas set Panda udev rules (`MODE:=0666` if `MODE=0666` doesn't work) 
 4. Before going any further make sure Openpilot and Carla can run virtually in Ubuntu (follow the instructions inside `openpilot/tools/sim` and always update Openpilot and its subrepos to the latest version)
@@ -17,7 +17,7 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 5. Run Carla (`./Carla.sh` on terminal or `openpilot/tools/sim/start_carla.sh`)
 6. The code to avoid steering commands is located inside selfdrive/car/(maker)/(maker)can.py. The idea is to replace the value in the steering signal with 0 so that controls.py still sends steering commands to Carla but not to the vehicle. Black Panda is preferred for all CAN communications.
 
-**** Make sure the Panda is in ALL_OUTPUT mode (Blue and Red LED blinking) **** 
+****Make sure the Panda is in ALL_OUTPUT mode (Blue and Red LED blinking)**** 
 
 The output mode of the Panda is set on line 113 of `openpilot/selfdrive/board/boardd.cc`:
 ```
@@ -102,6 +102,17 @@ Therefore, a call to the created function would have to be made inside the `upda
 - Add Sumo how to
 
 #### List of modified files and lines modified
+- `phonelibs/json11/json11.cpp`: Moddified line 234 to initialize the variable. 
+   - `const map<string, Json> empty_map {};`
+- `selfdrive/boardd/boardd.cc`: Commented out line 112. Added line 113 to change panda SAFETY MODE to ALL_OUTPUT.
+   - `panda->set_safety_model(cereal::CarParams::SafetyModel::ALL_OUTPUT);`
+   
+- `selfdrive/car/toyota/interface.py`: Commented out lines 321 and 324 to avoid Openpilot errors.
+- `selfdrive/car/toyota/toyotacan.py `: Commented out lines 5, 6, 25, 29 and 30 to avoid steering messages being sent to the vehicle. Replaced all `STEER_REQUEST`, `STEER_TORQUE_CMD`and `STEER_REQUEST_2` values with 0.
+- `selfdrive/controls/controlsd.py`: 
+   - Added subscription to steering state on line 61 (`carlaState`) to replace the   vehicle's steering angle with the one in Carla.
+   - Replaced steering values read from CAN (`CS.steeringAngle`) with the one sent from Carla (`self.sm['carlaState'].angle`) on lines 387, 476 and 499.
+   - Commented out lines 204, 213 and 219 to avoid Openpilot errors
 #### Schematics of vehicle connections
 #### Check how to make duplicate repo private
 
