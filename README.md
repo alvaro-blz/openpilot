@@ -102,7 +102,8 @@ Therefore, a call to the created function would have to be made inside the `upda
 - Add Sumo how to
 
 #### List of modified files and lines modified
-- `phonelibs/json11/json11.cpp`: Moddified line 234 to initialize the variable. 
+- Created `openpilot/tools/sim/brideg_dino_carla.py`: Links Openpilot and Carla by sending OP commands to Carla and OP the Carla images.
+- `phonelibs/json11/json11.cpp`: Moddified line 234 to initialize the variable and to solve compilation issues (it might not be required depending on the gcc and g++ compilator versions).
    - `const map<string, Json> empty_map {};`
 - `selfdrive/boardd/boardd.cc`: Commented out line 112. Added line 113 to change panda SAFETY MODE to ALL_OUTPUT.
    - `panda->set_safety_model(cereal::CarParams::SafetyModel::ALL_OUTPUT);`
@@ -113,6 +114,7 @@ Therefore, a call to the created function would have to be made inside the `upda
    - Added subscription to steering state on line 61 (`carlaState`) to replace the   vehicle's steering angle with the one in Carla.
    - Replaced steering values read from CAN (`CS.steeringAngle`) with the one sent from Carla (`self.sm['carlaState'].angle`) on lines 387, 476 and 499.
    - Commented out lines 204, 213 and 219 to avoid Openpilot errors
+   
 #### Schematics of vehicle connections
 #### Check how to make duplicate repo private
 
