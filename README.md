@@ -96,10 +96,13 @@ Therefore, a call to the created function would have to be made inside the `upda
 
 
 #### Carla
-- Show points in map
-- Add Cameras and sensors, get radar distance and print it
+- Carla tutorial and documentation: https://carla.readthedocs.io/en/latest/
 - Edit Carla Server Address
-- Add Sumo how to
+Carla needs to connect to the Server in order to run. That connection by default is set locally within the same machine. The address and port for the server machine can be edited in case Carla Server is running on another machine in the same network. The line to edit the Server address is the following:
+ `client = carla.Client("127.0.0.1", 2000)`
+This line will be inside every file that makes a client run. The first argument is the IP address and the second one the port.
+
+- Sumo and Carla tutorial: https://carla.readthedocs.io/en/latest/adv_sumo/
 
 #### List of modified files and lines modified
 - Created `openpilot/tools/sim/brideg_dino_carla.py`: Links Openpilot and Carla by sending OP commands to Carla and OP the Carla images.
@@ -116,10 +119,12 @@ Therefore, a call to the created function would have to be made inside the `upda
    - Commented out lines 204, 213 and 219 to avoid Openpilot errors
    
 #### Schematics of vehicle connections
-#### Check how to make duplicate repo private
+Openpilot is connected to the vehicle using a Panda Black, a development harness and a Toyota giraffe.
+The development harness and the Giraffe are connected through a breakout box and each of their CAN buses are connected.
+The pinout for the development harness can be found here: https://miro.medium.com/max/1400/1*3sAhgBvaPOexzVASj3AzXQ.png
+The pinout for the Giraffe can be found here: https://github.com/commaai/neo/blob/master/giraffe/toyota/giraffe12.sch.pdf
 
-
-
+The Panda Black requires power from the OBDII port and no power from the usb Paw (the green board that goes from USB mini to regular USB).
 
 Table of Contents
 =======================
